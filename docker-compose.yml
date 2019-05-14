@@ -1,0 +1,14 @@
+
+version: '2'
+services:
+  centos-server:
+    build:
+      context: ./php
+      dockerfile: Dockerfile
+    image: hilton-dockerphp7
+    ports:
+      - 80:80
+    
+    volumes:
+     - ./public_html:/var/www/html # modified here to take into account the new app path
+     #- ./httpd.conf:/etc/httpd/conf/httpd.conf #hilton server httpd config file
