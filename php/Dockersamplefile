@@ -1,0 +1,71 @@
+FROM centos:centos7
+LABEL name="Flexbox CentOS 7.4 + PHP 7.2 Image" \
+    maintainer="Alex Karshin <https://flexbox.it>" \
+    license="The Unlicense" \
+    build-date="20180512" \
+    source="https://github.com/flexbox-it/dockerimage-centos-php7"
+
+# update yum
+RUN yum clean all; yum -y update --nogpgcheck
+RUN yum -y install yum-utils
+
+RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm; \
+    rpm -Uvh http://rpms.remirepo.net/enterprise/remi-release-7.rpm; \
+    yum-config-manager --enable remi-php72
+
+# Install some must-haves
+RUN yum -y install --nogpgcheck \
+    epel-release \
+    wget \
+    git \
+    nano \
+    postfix \
+    gcc-c++ \
+    make
+
+RUN yum -y install \
+    httpd \
+    php \
+    php-bcmath \
+    php-cli \
+    php-curl \
+    php-devel \
+    php-gd \
+    php-fpm \
+    php-imagick \
+    php-intl \
+    php-mbstring \
+    php-mcrypt \
+    php-mysqlnd \
+    php-opcache --nogpgcheck \
+    php-pdo \
+    php-posix \
+    php-xml \
+    php-zip
+# -----------------------------------------------------------------------------
+# Install Oracle drivers
+#
+# Oracle clients need to be downloaded in oracle path
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Set ports and env variable HOME
+# -----------------------------------------------------------------------------
+EXPOSE 80
+ENV HOME /var/www/html
+ENV hostname=hiltonrds.cvb3x10otois.us-east-1.rds.amazonaws.com
+ENV username=newageuser
+ENV password=NeW#EAdm!N
+ENV database=hiltondb
+#ENV baseurl=url
+#RUN sed -i '/<Directory \/var\/www\/html\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/httpd/conf/httpd.conf
+RUN sed -i '/<Directory "\/var\/www\/html">/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/httpd/conf/httpd.conf
+#Copy Application Files
+#RUN rm -rf /var/www/html/*
+
+# -----------------------------------------------------------------------------
+# Start
+# -----------------------------------------------------------------------------
+COPY ["startup.sh", "/"]
+RUN chmod +x /startup.sh
+ENTRYPOINT ["/startup.sh"]
